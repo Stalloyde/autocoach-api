@@ -11,28 +11,28 @@ async function main() {
   // The transaction runs synchronously so deleteFolder must run last.
   await prisma.$transaction([deleteUsers, deleteWorkouts]);
 
-  await prisma.user.createMany({
-    data: [
-      {
-        id: 1,
-        username: '123',
-        password: '123',
-      },
-      {
-        id: 2,
-        username: 'aaa',
-        password: 'aaa',
-      },
-      {
-        id: 3,
-        username: 'bbb',
-        password: 'bbb',
-      },
-    ],
-  });
+  //   await prisma.user.createMany({
+  //     data: [
+  //       {
+  //         id: 1,
+  //         username: '123',
+  //         password: '123',
+  //       },
+  //       {
+  //         id: 2,
+  //         username: 'aaa',
+  //         password: 'aaa',
+  //       },
+  //       {
+  //         id: 3,
+  //         username: 'bbb',
+  //         password: 'bbb',
+  //       },
+  //     ],
+  //   });
 
-  const allUsers = await prisma.user.findMany();
-  console.log(allUsers);
+  //   const allUsers = await prisma.user.findMany();
+  //   console.log(allUsers);
 }
 
 main()
