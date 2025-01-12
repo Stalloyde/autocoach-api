@@ -1,3 +1,5 @@
+require('./config/passport');
+const passport = require('passport');
 const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -19,6 +21,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors(corsOptions));
-
+app.use(passport.initialize());
 app.use('/', route);
 module.exports = app;

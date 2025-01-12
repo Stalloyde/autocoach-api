@@ -114,6 +114,19 @@ exports.login = [
   }),
 ];
 
-exports.saveWorkout = (req, res) => {
-  return res.json('saveWorkout');
-};
+exports.addToFavourites = [
+  body('workoutName')
+    .trim()
+    .notEmpty()
+    .escape()
+    .withMessage('*Workout name required'),
+  body('reps').trim().notEmpty().escape(),
+  body('repsInterval').trim().notEmpty().escape(),
+  body('waves').trim().notEmpty().escape(),
+  body('wavesInterval').trim().notEmpty().escape(),
+  body('countdown').trim().notEmpty().escape(),
+
+  expressAsyncHandler(async (req, res) => {
+    return res.json('saveWorkout');
+  }),
+];
