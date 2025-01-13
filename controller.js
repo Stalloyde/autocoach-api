@@ -121,12 +121,24 @@ exports.addToFavourites = [
     .escape()
     .withMessage('*Workout name required'),
   body('reps').trim().notEmpty().escape(),
-  body('repsInterval').trim().notEmpty().escape(),
+  body('repInterval').trim().notEmpty().escape(),
   body('waves').trim().notEmpty().escape(),
-  body('wavesInterval').trim().notEmpty().escape(),
+  body('waveInterval').trim().notEmpty().escape(),
   body('countdown').trim().notEmpty().escape(),
 
   expressAsyncHandler(async (req, res) => {
-    return res.json('saveWorkout');
+    await prisma.workout.create({
+      data: {
+        workoutName: req.body.workoutName,
+        reps: Number(req.body.reps),
+        userId: Number(req.user.user.id),
+        repInterval: Number(req.body.repInterval),
+        waves: Number(req.body.waves),
+        waveInterval: Number(req.body.waveInterval),
+        countdown: Number(req.body.countdown),
+      },
+    });
+
+    return res.json('Saved!');
   }),
 ];

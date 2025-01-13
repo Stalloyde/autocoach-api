@@ -5,7 +5,7 @@ const passport = require('passport');
 
 router.post('/signup', controller.signup);
 router.post('/login', controller.login);
-router.get(
+router.post(
   '/addToFavourites',
   passport.authenticate('jwt', { session: false }),
   controller.addToFavourites,
