@@ -127,6 +127,20 @@ exports.addToFavourites = [
   body('countdown').trim().notEmpty().escape(),
 
   expressAsyncHandler(async (req, res) => {
+    const errorResponses = {};
+
+    //check duplicate workoutNames in currentUser
+    const allUserWorkouts = await prisma.workout.findMany({
+      where: { userId: req.user.user.id },
+    });
+
+    for (let x = 0; x < allUserWorkouts.length; x++) {
+      if (allUserWorkouts[x].workoutName === req.body.workoutName) {
+        errorResponses.workoutNameError = `*Workout name is taken`;
+        return res.json(errorResponses);
+      }
+    }
+    //if no duplicates
     await prisma.workout.create({
       data: {
         workoutName: req.body.workoutName,
