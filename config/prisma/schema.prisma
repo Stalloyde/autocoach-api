@@ -22,12 +22,14 @@ model User {
 
 model Workout {
   id            Int     @default(autoincrement())
-  workoutName   String  @unique
-  user          User    @relation(fields: [userId], references: [id])
+  workoutName   String 
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int
   reps          Int
   repInterval   Int
   waves         Int
   waveInterval  Int
   countdown     Int
+
+  @@unique([workoutName, userId])
 }
