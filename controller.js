@@ -5,6 +5,22 @@ const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+exports.getCurrentUser = expressAsyncHandler(async (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    const errorsArray = errors.array();
+    return res.json(errorsArray);
+  }
+
+  const currentUser = await prisma.user.findUnique({
+    where: { id: Number(req.user.user.id) },
+    select: { username: true, workouts: true },
+  });
+
+  return res.json(currentUser);
+});
+
 exports.signup = [
   body('username').trim().notEmpty().escape().withMessage('*Username required'),
   body('password').trim().notEmpty().escape().withMessage('*Password required'),
@@ -84,7 +100,7 @@ exports.login = [
 
     const user = await prisma.user.findUnique({
       where: { username: req.body.username },
-      select: { id: true, username: true, password: true },
+      select: { id: true, username: true, password: true, workouts: true },
     });
 
     if (!user) {
@@ -106,8 +122,8 @@ exports.login = [
         if (err) {
           throw Error(err);
         } else {
-          const { username } = user;
-          return res.json({ username, Bearer: `Bearer ${token}` });
+          const { username, workouts } = user;
+          return res.json({ username, workouts, Bearer: `Bearer ${token}` });
         }
       },
     );
@@ -128,7 +144,6 @@ exports.addToFavourites = [
 
   expressAsyncHandler(async (req, res) => {
     const errorResponses = {};
-
     //check duplicate workoutNames in currentUser
     const allUserWorkouts = await prisma.workout.findMany({
       where: { userId: req.user.user.id },
@@ -141,7 +156,7 @@ exports.addToFavourites = [
       }
     }
     //if no duplicates
-    await prisma.workout.create({
+    const createWorkout = prisma.workout.create({
       data: {
         workoutName: req.body.workoutName,
         reps: Number(req.body.reps),
@@ -153,6 +168,16 @@ exports.addToFavourites = [
       },
     });
 
-    return res.json('Saved!');
+    const getCurrentUser = prisma.user.findUnique({
+      where: { id: Number(req.user.user.id) },
+      select: { username: true, workouts: true },
+    });
+
+    const [newWorkout, currentUser] = await prisma.$transaction([
+      createWorkout,
+      getCurrentUser,
+    ]);
+
+    return res.json(currentUser);
   }),
 ];
