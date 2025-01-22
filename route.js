@@ -15,5 +15,10 @@ router.post(
   passport.authenticate('jwt', { session: false }),
   controller.addToFavourites,
 );
+router.put(
+  '/overwriteFavourites',
+  passport.authenticate('jwt', { session: false }),
+  controller.overwriteFavourites,
+);
 
 module.exports = router;

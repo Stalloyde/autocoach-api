@@ -151,7 +151,7 @@ exports.addToFavourites = [
 
     for (let x = 0; x < allUserWorkouts.length; x++) {
       if (allUserWorkouts[x].workoutName === req.body.workoutName) {
-        errorResponses.workoutNameError = `*Workout name is taken`;
+        errorResponses.workoutNameError = `${allUserWorkouts[x].workoutName}`;
         return res.json(errorResponses);
       }
     }
@@ -178,6 +178,48 @@ exports.addToFavourites = [
       getCurrentUser,
     ]);
 
+    return res.json(currentUser);
+  }),
+];
+
+exports.overwriteFavourites = [
+  body('workoutName')
+    .trim()
+    .notEmpty()
+    .escape()
+    .withMessage('*Workout name required'),
+  body('reps').trim().notEmpty().escape(),
+  body('repInterval').trim().notEmpty().escape(),
+  body('waves').trim().notEmpty().escape(),
+  body('waveInterval').trim().notEmpty().escape(),
+  body('countdown').trim().notEmpty().escape(),
+
+  expressAsyncHandler(async (req, res) => {
+    const updateWorkout = prisma.workout.update({
+      where: {
+        workoutName_userId: {
+          userId: req.user.user.id,
+          workoutName: req.body.workoutName,
+        },
+      },
+      data: {
+        reps: Number(req.body.reps),
+        repInterval: Number(req.body.repInterval),
+        waves: Number(req.body.waves),
+        waveInterval: Number(req.body.waveInterval),
+        countdown: Number(req.body.countdown),
+      },
+    });
+
+    const getCurrentUser = prisma.user.findUnique({
+      where: { id: Number(req.user.user.id) },
+      select: { username: true, workouts: true },
+    });
+
+    const [updatedWorkout, currentUser] = await prisma.$transaction([
+      updateWorkout,
+      getCurrentUser,
+    ]);
     return res.json(currentUser);
   }),
 ];
