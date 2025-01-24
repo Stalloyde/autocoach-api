@@ -143,6 +143,13 @@ exports.addToFavourites = [
   body('countdown').trim().notEmpty().escape(),
 
   expressAsyncHandler(async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const errorsArray = errors.array();
+      return res.json(errorsArray);
+    }
+
     const errorResponses = {};
     //check duplicate workoutNames in currentUser
     const allUserWorkouts = await prisma.workout.findMany({
