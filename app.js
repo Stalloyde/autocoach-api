@@ -11,7 +11,12 @@ const route = require('./route');
 const app = express();
 
 const corsOptions = {
-  origin: ['http://localhost:5173'],
+  origin: [
+    'https://autocoach.vercel.app',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:3000',
+  ],
   optionsSuccessStatus: 200,
 };
 
