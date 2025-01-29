@@ -133,6 +133,8 @@ exports.login = [
 
 exports.addToFavourites = [
   body('workoutName')
+    .isLength({ max: 25 })
+    .withMessage('*Workout name is too long')
     .trim()
     .notEmpty()
     .escape()
@@ -144,14 +146,15 @@ exports.addToFavourites = [
   body('countdown').trim().notEmpty().escape(),
 
   expressAsyncHandler(async (req, res) => {
+    const errorResponses = {};
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
       const errorsArray = errors.array();
-      return res.json(errorsArray);
+      errorResponses.workoutNameError = errorsArray[0].msg;
+      return res.json(errorResponses);
     }
 
-    const errorResponses = {};
     //check duplicate workoutNames in currentUser
     const allUserWorkouts = await prisma.workout.findMany({
       where: { userId: req.user.user.id },
@@ -159,7 +162,7 @@ exports.addToFavourites = [
 
     for (let x = 0; x < allUserWorkouts.length; x++) {
       if (allUserWorkouts[x].workoutName === he.decode(req.body.workoutName)) {
-        errorResponses.workoutNameError = `${allUserWorkouts[x].workoutName}`;
+        errorResponses.duplicateFound = `${allUserWorkouts[x].workoutName}`;
         return res.json(errorResponses);
       }
     }
