@@ -4,6 +4,7 @@ const expressAsyncHandler = require('express-async-handler');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const he = require('he');
 
 exports.getCurrentUser = expressAsyncHandler(async (req, res, next) => {
   const errors = validationResult(req);
@@ -157,7 +158,7 @@ exports.addToFavourites = [
     });
 
     for (let x = 0; x < allUserWorkouts.length; x++) {
-      if (allUserWorkouts[x].workoutName === req.body.workoutName) {
+      if (allUserWorkouts[x].workoutName === he.decode(req.body.workoutName)) {
         errorResponses.workoutNameError = `${allUserWorkouts[x].workoutName}`;
         return res.json(errorResponses);
       }
@@ -165,7 +166,7 @@ exports.addToFavourites = [
     //if no duplicates
     const createWorkout = prisma.workout.create({
       data: {
-        workoutName: req.body.workoutName,
+        workoutName: he.decode(req.body.workoutName),
         reps: Number(req.body.reps),
         userId: Number(req.user.user.id),
         repInterval: Number(req.body.repInterval),
@@ -206,7 +207,7 @@ exports.overwriteFavourites = [
       where: {
         workoutName_userId: {
           userId: req.user.user.id,
-          workoutName: req.body.workoutName,
+          workoutName: he.decode(req.body.workoutName),
         },
       },
       data: {
